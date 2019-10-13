@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 184 Rasterizer</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2018</h1>
+<h1 align="middle">Project 1: Rasterizer</h1>
+<h2 align="middle">Michael Lu, CS184-aaz</h2>
+
+<br><br>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>Give a high-level overview of what you implemented in this project. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the project.</p>
+
+<h2 align="middle">Section I: Rasterization</h2>
+
+<h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
+
+<p>To rasterize a triangle, I iterate over every sample in the bounding box of the triangle, and check if the sample lies within the triangle by comparing the area of the triangle to the area of the triangles created by the new point using a simple shoelace algorithm. This algorithm is no worse than one that checks each sample within the bounding box of the triangle because this algorithm does exactly that.</p>
+
+<div align="middle">
+  <img src="images/test4.png" align="middle" width="400px"/>
+  <figcaption align="middle">basic/test4.svg with default viewing parameters</figcaption>
+</div>
+
+<h3 align="middle">Part 2: Antialiasing triangles</h3>
+
+<p>To implement super sampling, I iterate over each sub-sample within each pixel. I added a nested for-loop on the inside of the nested for-loop I used for part 1 to iterate over the sub-samples one pixel at a time. This smooths out the jagged edges along the sides of the triangle that are not accurately represented by a single sample.</p>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/test4-s1.png" align="middle" width="400px"/>
+        <figcaption align="middle">basic/test4.svg with 1 sub-samples</figcaption>
+      </td>
+      <td>
+        <img src="images/test4-s4.png" align="middle" width="400px"/>
+        <figcaption align="middle">basic/test4.svg with 4 sub-samples</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/test4-s9.png" align="middle" width="400px"/>
+        <figcaption align="middle">basic/test4.svg with 9 sub-samples</figcaption>
+      </td>
+      <td>
+        <img src="images/test4-s16.png" align="middle" width="400px"/>
+        <figcaption align="middle">basic/test4.svg with 16 sub-samples</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h3 align="middle">Part 3: Transforms</h3>
+
+<div align="middle">
+  <img src="images/my_robot.png" align="middle" width="400px"/>
+  <figcaption align="middle">robot doing a handstand</figcaption>
+</div>
+
+<p>I simply rotated the arms and legs a bit and flipped the robot upside-down to put the robot in a handstand position.</p>
+
+<h2 align="middle">Section II: Sampling</h2>
+
+<h3 align="middle">Part 4: Barycentric coordinates</h3>
+
+<p>Barycentric coordinates are essentially distances from vertices. For example, in the triangle gradients below, any point within the triangle takes on a color value equal to the weighted sum of the color values of the vertices based on the point's distance from each vertex.</p>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/gradient.png" align="middle" width="400px"/>
+        <figcaption align="middle">Triangle gradient with RGB colors</figcaption>
+      </td>
+      <td>
+        <img src="images/gradient2.png" align="middle" width="400px"/>
+        <figcaption align="middle">Another triangle gradient with different colors</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div align="middle">
+  <img src="images/color_wheel.png" align="middle" width="400px"/>
+  <figcaption align="middle">Color Wheel</figcaption>
+</div>
+
+<h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
+
+<p>Pixel sampling is essntially sampling pixels in screen space and then computing and mapping the pixel coordinates to its corresponding uv coordinates on the desired texture. For nearest neighbor sampling, we simply map the pixel coordinates to its uv coordinates and then sample from the nearest texel in the texture. For bilinear filtering, we interpolate using the nearest 4 texels.</p>
+
+<p>The difference between 1 sample and 16 samples is quite apparent, with the one sample pictures being more pixelated then their 16 sample counterparts. The bilinear filtering also contributes to the quality of the photo, although the relative difference between the 16 sample photos is less than the difference in the 1 sample photos.</p>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/nearest1.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest interpolation with 1 sub-sample</figcaption>
+      </td>
+      <td>
+        <img src="images/nearest16.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest interpolation with 16 sub-samples</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/bilinear1.png" align="middle" width="400px"/>
+        <figcaption align="middle">Bilinear interpolation with 1 sub-sample</figcaption>
+      </td>
+      <td>
+        <img src="images/bilinear16.png" align="middle" width="400px"/>
+        <figcaption align="middle">Bilinear interpolation with 16 sub-samples</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
+
+<p>Level sampling is used when one screen pixel corresponds to multiple texels, usually due to minification of the image; therefore, we compute the uv coordinates of adjacent pixels in the x and y direction and use these points to determine which texel to sample from the texture.</p>
+
+<p>For the most part, improving the anti-aliasing power, by using supersampling, pixel sampling, or level sampling, corresponds to poorer perfomance in terms of computation time and hardware workload.</p>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/s1lzpn.png" align="middle" width="400px"/>
+        <figcaption align="middle">Level zero with nearest pixel sampling and 1 sub-sample</figcaption>
+      </td>
+      <td>
+        <img src="images/s1lzpl.png" align="middle" width="400px"/>
+        <figcaption align="middle">Level zero with bilinear pixel sampling and 1 sub-sample</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/s1lnpn.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest level with nearest pixel sampling and 1 sub-sample</figcaption>
+      </td>
+      <td>
+        <img src="images/s1lnpl.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest level with bilinear pixel sampling and 1 sub-sample</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/s16lnpl.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest level with bilinear pixel sampling and 16 sub-samples</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/s1tri.png" align="middle" width="400px"/>
+        <figcaption align="middle">Trilinear filtering with 1 sub-sample</figcaption>
+      </td>
+      <td>
+        <img src="images/s16tri.png" align="middle" width="400px"/>
+        <figcaption align="middle">Trilinear filtering with 16 sub-samples</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2 align="middle">Section III: Art Competition</h2>
+<p>If you are not participating in the optional art competition, don't worry about this section!</p>
+
+<h3 align="middle">Part 7: Draw something interesting!</h3>
+
+</body>
+</html>
